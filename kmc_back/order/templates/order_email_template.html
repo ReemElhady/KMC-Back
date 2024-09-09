@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>KMC</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link
+            href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Red+Hat+Display:ital,wght@0,300..900;1,300..900&display=swap"
+            rel="stylesheet"
+    />
+       <style>
+        /* Globals */
+        * {
+            margin: 0;
+            box-sizing: border-box;
+            -moz-box-sizing: border-box;
+        }
+
+        h2 {
+            font-size: 14px;
+            color: #464646;
+        }
+
+        p {
+            font-size: 13px;
+        }
+
+        body {
+            max-width: 800px;
+            margin: auto;
+            font-family: "Montserrat", sans-serif;
+        }
+
+        .container {
+            width: 40%;
+            margin: auto;
+        }
+
+        .row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .col {
+            width: 50%;
+        }
+
+        .border {
+            border-bottom: 1px solid gray;
+            margin-bottom: 1rem;
+            margin-top: 1rem;
+        }
+
+        li {
+            list-style: none;
+            color: gray;
+            font-size: 14px;
+            margin: 5px 1px;
+            white-space: nowrap;
+        }
+
+        /* ----------------------- */
+        .logo-width {
+            width: 15%;
+            position: relative;
+            left: 0;
+            top: 3px;
+        }
+
+        .header-text img {
+            width: 100%;
+        }
+
+        .header-text h2 {
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header-text p {
+            max-width: 600px;
+            margin-top: 1rem;
+            color: gray;
+        }
+
+        /* ---------------*/
+        /* Order and address */
+        .order p {
+            color: #ff0000;
+        }
+
+        .your-order-text {
+            margin: 20px 0;
+        }
+
+        .address p {
+            color: gray;
+            max-width: 600px;
+            margin-inline-end: 2rem;
+        }
+
+        .your-order h1 {
+            margin: 1.5rem 0;
+            font-size: 22px;
+        }
+
+        .your-order p {
+            margin-bottom: 1rem;
+            color: #464646;
+            font-size: 18px;
+            font-weight: 500;
+
+        }
+
+
+        .your-order-image img {
+            width: 50%;
+            text-align: center;
+                        margin:0;
+            padding:0;
+        }
+
+        .your-order-text ul li:last-child {
+            color: black;
+            font-weight: bold;
+            margin-right: 10px;
+            width: 100%;
+        }
+
+        .your-order-text ul {
+            display: flex;
+            margin: 0;
+            position: relative;
+            align-items: center;
+            padding: 0;
+        }
+
+        .your-order-text h2 {
+            padding-left: 0;
+        }
+
+        .payment-details .row {
+            margin-bottom: 1rem;
+        }
+
+        /* ----------------------- */
+        /* Subtotal */
+
+        .subtotal p {
+            color: #777777;
+        }
+
+        .subtotal h2 {
+            font-weight: 300;
+        }
+
+        /* ------------------------ */
+        /* Responsive */
+        @media screen and (max-width: 600px) {
+            * {
+                font-size: 14px;
+            }
+
+            h2 {
+                font-size: 16px;
+            }
+
+            .container {
+                width: 80%;
+            }
+        }
+
+        /* ------------------------ */
+    </style>
+</head>
+<body>
+<div class="container header-text">
+    <div class="logo-width">
+        <img src="https://i.ibb.co/JF2rDKr/logo-kmc.png" alt="">
+    </div>
+
+    <h2>DEAR {{ name }},</h2>
+    <p>
+        Thank you for shopping at KMC.
+    </p>
+
+    <div class="row">
+        <div class="col order">
+            <h2>Order Number:</h2>
+            <p>{{ code }}</p>
+        </div>
+        <div class="col order">
+            <h2>Order Placed:</h2>
+            <p>{{ created_at }}</p>
+        </div>
+    </div>
+    <div class="address">
+        <h2>Your Shipping Address:</h2>
+        <p>{{ address }}</p>
+    </div>
+</div>
+<div class="your-order container">
+    <h1>Your Order:</h1>
+    <div class="border"></div>
+    <p>Order Items</p>
+    <div class="border"></div>
+    {% for item in items %}
+        <div class="row">
+            <div class="col your-order-image">
+                <img src="{{ base_url }}{{ item.product_image }}" alt="product image"/>
+            </div>
+            <div class="col your-order-text">
+                {% if item.product_item_title %}
+                    <h2>{{ item.product_item_title }}</h2>
+                {% else %}
+                    <h2>{{ item.product_title_en }}</h2>
+                {% endif %}
+                <ul>
+                    <li>QUANTITY:</li>
+                    <li>{{ item.quantity }}</li>
+                </ul>
+                <ul>
+                    <li>PRICE:</li>
+                    <li>{{ item.price }}</li>
+                </ul>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+<div class="payment-details container">
+    <div class="border"></div>
+    <div class="row">
+        <div class="col">
+            <h2>Payment Details:</h2>
+        </div>
+        <div class="col">
+            <p>{{ payment_type }}</p>
+        </div>
+    </div>
+    <div class="border"></div>
+</div>
+<div class="subtotal container">
+    <div class="row">
+        <div class="col">
+            <h2>Order discounts :</h2>
+        </div>
+        <div class="col">
+            <p>{{ discount }} LE</p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <h2>Shipping :</h2>
+        </div>
+        <div class="col">
+            <p>{{ shipping_fees }} LE</p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <h2 style="font-weight: bold;">Total</h2>
+        </div>
+        <div class="col">
+            <div class="position">
+                <p>{{ total_price }} LE</p>
+            </div>
+        </div>
+    </div>
+  
+</div>
+
+<br/>
+
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9; border: 1px solid #e0e0e0; border-radius: 8px;">
+    <div style="text-align: center; padding: 20px; background-color: #ff0000; color: white; border-radius: 8px 8px 0 0;">
+        <h2 style="margin: 0; color: #f9f9f9;">Track Your Order</h2>
+    </div>
+    <div style="padding: 20px;">
+        <p style="font-size: 18px; color: #333;">You can track your order using the following code:</p>
+        <p style="font-size: 20px; color: #000; font-weight: bold; margin: 10px 0;">{{ Awb_code }}</p>
+        <p style="font-size: 16px; color: #555;">Click the link below to track your order:</p>
+        <a href="https://www.smsaexpress.com/eg" style="display: inline-block; font-size: 16px; color: #ff0000; text-decoration: none; margin-top: 10px;">Track My Order</a>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,1 @@
+from .wasage import Wasage

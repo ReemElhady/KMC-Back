@@ -1,0 +1,58 @@
+services:
+  db:
+    image: postgres:10-alpine
+    env_file:
+      - .env
+    ports:
+      - "5433:5432"
+    expose:
+      - 5433
+    volumes:
+      - ./db_backup:/var/lib/postgresql/data
+  django:
+    tty: true
+    stdin_open: true
+    build: .
+    volumes:
+      - .:/kmc_back
+    command: >
+      sh -c "python /kmc_back/manage.py collectstatic --noinput &&
+             python /kmc_back/manage.py makemigrations &&
+             python /kmc_back/manage.py migrate &&
+             gunicorn kmc_back.wsgi --bind 0.0.0.0:2271 --reload --workers 2 --chdir /kmc_back/"
+    restart: always
+    expose:
+      - 2271
+    ports:
+      - "2271:2271"
+    env_file:
+      - .env
+    depends_on:
+      - db
+  redis:
+    image: redis:latest
+
+  celery:
+    build: .
+    volumes:
+      - .:/kmc_back
+    env_file:
+      - ./.env
+    depends_on:
+      - redis
+      - django
+      - db
+    command: >
+      sh -c "truncate -s 0 /kmc_back/celery.log && 
+             celery worker -A kmc_back --loglevel=INFO -f celery.log"
+
+  celery-beat:
+    build: .
+    command: >
+      sh -c "truncate -s 0 /kmc_back/celery.log && 
+             celery -A kmc_back beat --loglevel=INFO -f celery_beat.log"
+    env_file:
+      - ./.env
+    depends_on:
+      - redis
+      - celery

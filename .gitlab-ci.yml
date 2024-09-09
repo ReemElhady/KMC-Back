@@ -1,0 +1,31 @@
+stages:
+  - deploy
+
+kmc:
+  stage: deploy
+  image: ubuntu
+  tags: [docker]
+  before_script:
+    - eval $(ssh-agent -s)
+    - mkdir -p ~/.ssh
+    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+    - echo $ID_ED25519 > ~/.ssh/id_ed25519.pub
+    - apt-get update -y
+    - apt-get install -y sshpass
+  script:
+    - echo $CI_COMMIT_BRANCH
+    - if [ "$CI_COMMIT_BRANCH" == "main" ]; then AZ_ENV=".env.live"; else AZ_ENV=".env.dev"; fi
+    - if [ "$CI_COMMIT_BRANCH" == "main" ]; then AZ_DOMAIN="$AZ_DOMAIN_MAIN"; else AZ_DOMAIN="$AZ_DOMAIN_DEV"; fi
+    - if [ "$CI_COMMIT_BRANCH" == "main" ]; then AZ_USERNAME="$AZ_USERNAME_MAIN"; else AZ_USERNAME="$AZ_USERNAME_DEV"; fi
+    - if [ "$CI_COMMIT_BRANCH" == "main" ]; then AZ_SSH_PASSWORD="$AZ_SSH_PASSWORD_MAIN"; else AZ_SSH_PASSWORD="$AZ_SSH_PASSWORD_DEV"; fi
+    - echo $AZ_SSH_PASSWORD
+    - sshpass -p $AZ_SSH_PASSWORD ssh $AZ_USERNAME@${AZ_DOMAIN} "ls -la"
+    - sshpass -p $AZ_SSH_PASSWORD ssh $AZ_USERNAME@${AZ_DOMAIN} "source enable_pub_key.sh && cd kmc && git pull origin $CI_COMMIT_BRANCH"
+    - sshpass -p $AZ_SSH_PASSWORD ssh $AZ_USERNAME@${AZ_DOMAIN} "sudo cat ~/kmc/kmc_back/${AZ_ENV} > ~/kmc/kmc_back/.env"
+    - sshpass -p $AZ_SSH_PASSWORD ssh $AZ_USERNAME@${AZ_DOMAIN} "sudo docker image prune -a -f"
+    - sshpass -p $AZ_SSH_PASSWORD ssh $AZ_USERNAME@${AZ_DOMAIN} "sudo docker compose -f ~/kmc/kmc_back/docker-compose.yml up --build -d"
+    - sshpass -p $AZ_SSH_PASSWORD ssh $AZ_USERNAME@${AZ_DOMAIN} "sudo service nginx restart all && sudo docker ps"
+  only:
+    refs:
+      - main
+      - dev

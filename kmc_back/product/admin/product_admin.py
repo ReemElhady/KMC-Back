@@ -5,8 +5,24 @@ from django.utils.translation import gettext as _
 from kmc_back.generic_admin import *
 from product.forms.product_forms import AtLeastOneRequiredInlineFormSet
 from product.models.product_models import *
+from django.contrib.admin import SimpleListFilter
 
+class OnSaleFilter(SimpleListFilter):
+    title = 'On Sale'
+    parameter_name = 'on_sale'
 
+    def lookups(self, request, model_admin):
+        return (
+            ('yes', 'Yes'),
+            ('no', 'No'),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == 'yes':
+            return queryset.filter(sale_percentage__gt=0) | queryset.filter(sale_price__isnull=False)
+        if self.value() == 'no':
+            return queryset.filter(sale_percentage__isnull=True, sale_price__isnull=True)
+        return queryset
 class ProductImageInline(TranslatableInline):
     formset = AtLeastOneRequiredInlineFormSet
     model = ProductImage
@@ -57,7 +73,7 @@ class ProductAdmin(TranslatableAdmin):
     ordering = ["id"]
     list_display = ["title", "branch", "sub_branch", "type", "price", "sale_price", "sale_percentage", "is_on_sale", "stock"]
     
-    # Add fieldsets if needed
+   
     fieldsets = (
         (
             _("Related tables"),
@@ -99,7 +115,7 @@ class ProductAdmin(TranslatableAdmin):
     )
 
     search_fields = ("title",)
-    list_filter = ("brand__name", "branch__name", "sub_branch__name", "type__name")
+    list_filter = ("brand__name", "branch__name", "sub_branch__name", "type__name",OnSaleFilter)
     
     inlines = [
         TranslationInline,
@@ -107,24 +123,20 @@ class ProductAdmin(TranslatableAdmin):
         ProductVideoUrlInline,
         ProductItemInline,
     ]
-
-
-    def is_on_sale(self, obj):
-    # Ensure the product is marked as on sale only if there is a sale percentage or a sale price
-        if obj.sale_percentage and obj.sale_percentage > 0:
-            return True
-        elif obj.sale_price and obj.sale_price < obj.price:
-            return True
-        return False
-
-    is_on_sale.boolean = True
-    is_on_sale.short_description = 'On Sale'
     
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
-        # Filter products on sale
-        queryset = queryset.filter(sale_percentage__gt=0) | queryset.filter(sale_price__isnull=False)
-        return queryset
+        return queryset 
+
+    def is_on_sale(self, obj):
+        if (obj.sale_percentage and obj.sale_percentage > 0) or (obj.sale_price and obj.sale_price < obj.price):
+            return True
+        return False 
+
+    is_on_sale.boolean = True
+    is_on_sale.short_description = 'On Sale'    
+
+
 
 
 class BranchAdmin(TranslatableAdmin):

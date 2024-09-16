@@ -36,11 +36,12 @@ class WebhookView(APIView):
             scans_dict[item["AWB"]] = item.get("Scans")
         orders = Order.objects.filter(awb__in=awbs)
         for order in orders:
+            print("BEFORE",order.shipping_status)
             scan = scans_dict[order.awb]
             sorted_scans = sorted(scan, key=lambda x: x["ScanDateTime"], reverse=True)
             last_scan = sorted_scans[0].get("ScanDescription")
             order.shipping_status = last_scan
             orders_to_update.append(order)
-
+            print("AFTER",order.shipping_status)
         Order.objects.bulk_update(orders_to_update, ["shipping_status"])
         return Response("Orders updated successfully", status=status.HTTP_200_OK)

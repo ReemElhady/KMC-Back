@@ -194,24 +194,16 @@ class Product(Translatable):
     )
     number_of_boxes = models.PositiveIntegerField(default=1)
     
-    # def get_final_price(self):
-    #     if self.sale_percentage:
-    #         return self.price * (1 - self.sale_percentage / 100)
-    #     if self.sale_price:
-    #         return self.sale_price
-    #     return self.price
-
-    # def get_discount_label(self):
-    #     if self.sale_percentage:
-    #         return f"{self.sale_percentage}% off"
-    #     elif self.sale_price:
-    #         return f"Save ${self.price - self.sale_price:.2f}"  # Added formatting for precision
-    #     return None
     def save(self, *args, **kwargs):
-        if self.sale_percentage is not None:
+        # Ensure sale_percentage and sale_price are only calculated if the other has a valid value
+        if self.sale_percentage is not None and self.sale_percentage > 0:
             self.sale_price = self.price * (1 - self.sale_percentage / 100)
-        elif self.sale_price is not None:
+        elif self.sale_price is not None and self.sale_price > 0:
             self.sale_percentage = (self.price - self.sale_price) / self.price * 100
+        else:
+            # No sale, so both sale_price and sale_percentage should be set to None
+            self.sale_price = None
+            self.sale_percentage = None
         super(Product, self).save(*args, **kwargs)
 
     def get_final_price(self):
@@ -290,16 +282,6 @@ class ProductVideoUrl(models.Model):
         return f"{self.product.title} - {self.url}"
 
 
-# class Review(models.Model):
-#     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_review')
-#     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_review')
-#     content = models.TextField(null=True, blank=True)
-#     rate = models.PositiveIntegerField(validators=[MaxValueValidator(5)])
-#
-#     class Meta:
-#         unique_together = (("product", "user"),)
-
-
 class WishList(models.Model):
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="user_wishlist"
@@ -341,6 +323,14 @@ class ProductItem(Translatable):
         self.product.save()
         super().save(*args, **kwargs)
 
+# class Review(models.Model):
+#     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_review')
+#     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_review')
+#     content = models.TextField(null=True, blank=True)
+#     rate = models.PositiveIntegerField(validators=[MaxValueValidator(5)])
+#
+#     class Meta:
+#         unique_together = (("product", "user"),)
 
 # @receiver(post_save, sender=Review, dispatch_uid="create_review")
 # def create_review(sender, instance, **kwargs):

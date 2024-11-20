@@ -10,7 +10,7 @@ class OrderItemInline(admin.StackedInline):
 
 class OrderAdmin(admin.ModelAdmin):
     #list_display = ("__str__", "refund_request")
-    list_display = ("get_user_name", "get_order_code", "get_created_date", "get_registered_order_id","get_order_status", "refund_request")
+    list_display = ("get_user_name", "get_order_code", "get_created_date","get_total_price","get_order_status", "refund_request")
     list_filter = ("order_status","code")
     readonly_fields = [
         "compelted_at",
@@ -28,6 +28,10 @@ class OrderAdmin(admin.ModelAdmin):
     def get_created_date(self, obj):
         return obj.created_at.date()
     get_created_date.short_description = "Date"
+    
+    def get_total_price(self, obj):
+        return obj.total_price
+    get_total_price.short_description = "Total Price"
 
     def get_registered_order_id(self, obj):
         return obj.registered_order_id

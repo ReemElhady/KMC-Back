@@ -169,7 +169,7 @@ class Product(Translatable):
     )
     brand = models.ForeignKey(
         Brand, on_delete=models.CASCADE, related_name="product_brand"
-    )
+    )   
     title = models.CharField(max_length=255)
     description = models.TextField()
     price = models.FloatField(validators=[MinValueValidator(0.0)])

@@ -31,6 +31,7 @@ from product.serializer.product_serializers import (
 )
 
 
+
 class TypeListView(ListAPIView):
     serializer_class = TypeSerializer
     pagination_class = None
@@ -62,17 +63,6 @@ class ProductAPIView(ListAPIView):
             .order_by("id")
         )
 
-    # def get(self, request, pk):
-    #     lang = translation.get_language_from_request(request)
-    #     user = request.user
-    #     context = {'user': user, 'lang': lang}
-    #     product_query = Product.objects.filter(type_id=pk, is_archived=False).translate(
-    #         lang).prefetch_related(
-    #         'product_image', 'product_url', 'product_wishlist')
-    #     product_serializer = ProductListSerializer(product_query, many=True, context=context).data
-    #     branch_query = Branch.objects.filter(type_id=pk).translate(lang)
-    #     branch_serializer = BranchSerializer(branch_query, many=True, context=context).data
-    #     return Response({'products': product_serializer, 'branches': branch_serializer})
 
 
 class BranchesAndBrandsView(APIView):
@@ -99,7 +89,6 @@ class BranchesAndBrandsView(APIView):
         branch_serializer = BranchSerializer(branch_query, many=True).data
         return Response({"brands": brand_serializer, "branches": branch_serializer})
 
-
 class ProductDetailsView(RetrieveAPIView):
     serializer_class = ProductDetailsSerializer
 
@@ -123,39 +112,6 @@ class ProductDetailsView(RetrieveAPIView):
         user = self.request.user
         context.update({"lang": lang, "user": user})
         return context
-
-
-# class ReviewAPIView(APIView, LimitOffsetPagination):
-#     # permission_classes = [IsAuthenticated]
-#
-#     def get(self, request, *args, **kwargs):
-#         query = Review.objects.filter(product=self.kwargs.get('pk'))
-#         query = self.paginate_queryset(query, request)
-#         serializer = ReviewSerializer(query, many=True).data
-#         return self.get_paginated_response(serializer)
-#
-#     @permission_classes(IsAuthenticated)
-#     def post(self, request, *args, **kwargs):
-#         try:
-#             request.data['user'] = request.user
-#             review = Review.objects.create(**request.data)
-#             serializer = ReviewSerializer(review)
-#             return Response({'review': serializer.data, 'product_rate': review.product.rate}, status=status.HTTP_200_OK)
-#         except Exception as e:
-#             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-#
-#     @permission_classes(IsAuthenticated)
-#     def delete(self, request, *args, **kwargs):
-#         try:
-#             product = get_object_or_404(Product, id=self.kwargs.get('pk'))
-#             query = Review.objects.filter(product=product, user=request.user)
-#             if query.exists():
-#                 query.delete()
-#                 return Response({'product_rate': product.rate}, status=status.HTTP_200_OK)
-#             return Response({"Review doesn't exist"}, status=status.HTTP_400_BAD_REQUEST)
-#         except Exception as e:
-#             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-#
 
 
 class WishListAPIView(APIView, LimitOffsetPagination):
@@ -189,3 +145,26 @@ class WishListAPIView(APIView, LimitOffsetPagination):
             return Response(status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+class ProductsByBrandAPIView(APIView):
+    def get(self, request, brand_id):
+        products = Product.objects.filter(brand_id=brand_id, is_archived=False)
+        if not products.exists():
+            return Response({"error": "No products found for this brand."}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = ProductListSerializer(products, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class ProductsByBranchAPIView(APIView):
+    def get(self, request, branch_id):
+        products = Product.objects.filter(branch_id=branch_id, is_archived=False)
+        if not products.exists():
+            return Response({"error": "No products found for this branch."}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = ProductListSerializer(products, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+

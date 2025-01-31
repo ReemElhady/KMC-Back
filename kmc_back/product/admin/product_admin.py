@@ -71,7 +71,7 @@ class BrandAdmin(TranslatableAdmin):
 
 class ProductAdmin(TranslatableAdmin):
     ordering = ["id"]
-    list_display = ["title", "branch", "sub_branch", "type", "price", "sale_price", "sale_percentage", "is_on_sale", "stock"]
+    list_display = ["title", "branch", "sub_branch", "type","brand", "price", "sale_price", "sale_percentage", "is_on_sale", "stock"]
     
    
     fieldsets = (

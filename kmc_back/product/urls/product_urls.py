@@ -8,6 +8,9 @@ from product.views.product_views import (
     ProductDetailsView,
     BranchesAndBrandsView,
     WishListAPIView,
+    # BrandListView,
+    ProductsByBrandAPIView,
+    ProductsByBranchAPIView
 )
 
 # router.register("", ProductAPIView),
@@ -22,5 +25,8 @@ urlpatterns = [
     path("wishlist/<uuid:pk>", WishListAPIView.as_view()),
     # path("review", ReviewAPIView.as_view()),
     path("branches-brands/<int:pk>", BranchesAndBrandsView.as_view()),
+    # path("brands/<int:pk>", BrandListView.as_view()),
+    path('by-brand/<int:brand_id>/', ProductsByBrandAPIView.as_view()),
+    path('by-branch/<int:branch_id>/', ProductsByBranchAPIView.as_view()),
 ]
 urlpatterns += router.urls

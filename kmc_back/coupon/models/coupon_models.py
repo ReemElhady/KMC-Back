@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator, MinLengthValidator
 from django.db import models
-
+from product.models import Product
 
 class Coupon(models.Model):
     code = models.CharField(max_length=8, unique=True, validators=[MinLengthValidator(6)])
@@ -12,8 +12,10 @@ class Coupon(models.Model):
     max_discount_value = models.PositiveIntegerField(default=0)
     min_value_to_apply = models.PositiveIntegerField(default=0)
     is_home = models.BooleanField(default=False)
-
+    products = models.ManyToManyField(Product, blank=True)  
+    
     def save(self, *args, **kwargs):
+        self.code = self.code.lower()
         if self.is_home:
             Coupon.objects.filter(is_home=True).exclude(id=self.id).update(
                 is_home=False)

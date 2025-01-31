@@ -63,7 +63,10 @@ class ProductListSerializer(serializers.ModelSerializer):
             return "doesn't exists"
 
     def get_is_wishlist(self, obj):
-        return ReturnIsWishlisted(self.context.get("user"), obj)
+        user = self.context.get("user")
+        if not user or user.is_anonymous:  # Handle the case where user is None or anonymous
+            return False
+        return ReturnIsWishlisted(user, obj)
 
     # def get_branches(self, obj):
     #Ensure that the sale percentage handled correctly
@@ -80,6 +83,7 @@ class ProductListSerializer(serializers.ModelSerializer):
             'weight', 'number_of_boxes', 'main_image', 'is_wishlist', 'product_item', 
             'final_price'
         ]
+
 
 
 # class ReviewSerializer(serializers.ModelSerializer):
@@ -163,4 +167,9 @@ def ReturnIsWishlisted(user, obj):
 
 
 class PopularProductSerializer(serializers.Serializer):
+    product = ProductListSerializer(read_only=True)
+
+
+
+class LowInStockProductSerializer(serializers.Serializer):
     product = ProductListSerializer(read_only=True)

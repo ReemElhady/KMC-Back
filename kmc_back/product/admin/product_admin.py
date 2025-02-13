@@ -64,7 +64,7 @@ class SubBranchAdmin(TranslatableAdmin):
 
 class BrandAdmin(TranslatableAdmin):
     ordering = ["id"]
-    list_display = ["name"]
+    list_display = ["name","display"]
     search_fields = ("name",)
     inlines = [TranslationInline]
 

@@ -33,7 +33,7 @@ class ProductItemSerializer(serializers.ModelSerializer):
 class BrandSerializer(serializers.ModelSerializer):
     class Meta:
         model = Brand
-        fields = ("name", 'id', 'image')
+        fields = ("name", 'id', 'image','display')
 
 
 class SubBranchSerializer(serializers.ModelSerializer):

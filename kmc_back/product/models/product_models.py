@@ -142,7 +142,8 @@ class Brand(Translatable):
             file_size,
         ],
     )
-
+    display = models.BooleanField(default=False,null=True,blank=True)
+    
     class TranslatableMeta:
         fields = ["name"]
 

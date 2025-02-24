@@ -45,11 +45,12 @@ def create_order(request, payment_method):
         # price_paid = total_price - points
         if price_paid < 0:
             price_paid = 0
-        tax = round(total_price * (cart.tax / 100), 2)
-
+        tax=0
+        if cart.tax is not None:
+            tax = round(total_price * (cart.tax / 100), 2)
+        
         # calculate total order weight
         order_weight = cart.total_weight
-
         address = get_object_or_404(
             UserAddress, user=request.user, id=request.data["address"]
         )

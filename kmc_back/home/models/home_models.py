@@ -251,5 +251,17 @@ class DemoBookingPage(models.Model):
                                   validators.FileExtensionValidator(allowed_extensions, extension_error_message),
                                   fileSize
                               ])
+    # add new field for mobile view
+    mobile_view_media = models.FileField(
+        upload_to="book-demo/main-page",
+        validators=[
+            validators.FileExtensionValidator(
+                allowed_extensions, extension_error_message
+            ),
+            fileSize,
+        ],
+        null=True,
+        blank=True,
+    )
     class Meta:
         verbose_name_plural = "Booking Demo page"

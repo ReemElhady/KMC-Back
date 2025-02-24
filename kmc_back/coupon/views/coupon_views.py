@@ -209,7 +209,7 @@ class CouponAPI(APIView):
         cart_items = cart.cart_items_cart.all()
         
         
-        coupon = Coupon.objects.filter(code=request.data.get("code")).first()   
+        coupon = Coupon.objects.filter(code__iexact=request.data.get("code")).first()   
         if coupon:
             response, response_code = apply_coupon(
                 cart, cart_items, request.user, lang, coupon

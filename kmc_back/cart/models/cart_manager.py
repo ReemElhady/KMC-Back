@@ -47,8 +47,9 @@ class CartManager(Manager):
             response, response_code = apply_coupon(
                 cart, cart.cart_items_cart.all(), user, "en", cart.coupon
             )
-
-            cart.discount_percentage = response["discount"]
+            # response => {'error': 'Minimum total price to use this coupon is 5000'}
+            if 'error' not in response:
+                cart.discount_percentage = response["discount"]
             if response_code != status.HTTP_200_OK:
                 cart.discount_percentage = 0
                 cart.coupon = None

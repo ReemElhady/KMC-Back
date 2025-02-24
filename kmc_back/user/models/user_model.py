@@ -43,11 +43,11 @@ class UserManager(BaseUserManager):
 
         user.set_password(password)
         user.save()
-        wasage_response = Wasage.send_otp(user.id)
+        # wasage_response = Wasage.send_otp(user.id)
 
         return {
             "user": user,
-            "wasage_response": wasage_response,
+            # "wasage_response": wasage_response,
         }
 
     def create_superuser(self, phone, password):
